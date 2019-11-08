@@ -14,13 +14,13 @@
  
   <div class="w3-border " style="margin-top:70px">
  
-    <table class="table table-hover table-responsive-lg table-striped table-bordered " id="example">
+    <table class="table table-hover table-responsive-lg table-striped table-bordered " id="complaints_data">
       <thead>
         <tr>
-          <th>No</th>
+        
           <th>CNIC</th>
-          <th>category</th>
-          <th>Desc</th>
+          <th>Program</th>
+          <th>Problem</th>
           <th>comment</th>
           <th>status</th>
           <th>Piority</th>
@@ -29,7 +29,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
+        <!-- <tr>
           <td>1</td>
           <td>31202496777897</td>
           <td>Admission</td>
@@ -50,7 +50,7 @@
           <th>Medium</th>
           <th>21-08-1996</th>
           <th><button>action</button></th>
-        </tr>
+        </tr> -->
       </tbody>
     </table>
   </div>
@@ -58,7 +58,7 @@
 
 <div id="userModal" class="modal fade">  
       <div class="modal-dialog">  
-           <form method="post" id="complaint_form">  
+           <form method="POST" id="complaint_form">  
                 <div class="modal-content">  
                      <div class="modal-header">  
                           <button type="button" class="close" data-dismiss="modal">&times;</button>  
@@ -69,21 +69,21 @@
                           <input type="number" name="cnic" id="cnic" class="form-control" />  
                           <br />  
                           <div class="form-group">
-                            <label for="sel1">Program:</label>
-                            <select class="form-control" id="sel1">
-                              <option>BSCS</option>
-                              <option>BSIT</option>
-                              <option>M-phil</option>
-                              <option>PHD</option>
+                            <label for="program">Program:</label>
+                            <select class="form-control" name="program" id="program" >
+                              <option value="bscs">BSCS</option>
+                              <option value="bsit">BSIT</option>
+                              <option value="mphil" >M-phil</option>
+                              <option value="phd">PHD</option>
                             </select>
                           </div> 
                           <div class="form-group">
-                            <label for="sel1">Piority:</label>
-                            <select class="form-control" id="sel1">
-                              <option>High</option>
-                              <option>Low</option>
-                              <option>Medium</option>
-                              <option>Serious</option>
+                            <label for="piority">Piority:</label>
+                            <select class="form-control" name="piority" id="piority">
+                              <option value="high" >High</option>
+                              <option value="low">Low</option>
+                              <option value="medium">Medium</option>
+                              <option value="serious" >Serious</option>
                             </select>
                           </div> 
                           <br />  
@@ -112,7 +112,24 @@
   <script type="text/javascript" language="javascript" >  
   $(document).ready(function(){  
   
-      $('#example').DataTable();
+    var dataTable =   $('#complaints_data').DataTable({
+        
+      "processing":true,
+      "serverSide":true,
+      "order": [],
+      "ajax":{
+            url:"<?=base_url().'ComplaintsController/fetch_complaints';?>",
+            type:"POST"
+      },
+
+      "columnDefs":[  
+                {  
+                     "targets":[0],  
+                     "orderable":false,  
+                },  
+           ],
+
+      });
 
       $(document).on('submit','#complaint_form',function(event){
         event.preventDefault();  
@@ -124,11 +141,18 @@
         if(cnic !='' && program !='' && piority !='' && problem !='')
         {
           $.ajax({
-            url:"<?php echo base_url() . 'crud/user_action'?>",  
+            url:"<?php echo base_url().'ComplaintsController/add_complaints'?>",  
                      method:'POST',  
                      data:new FormData(this),  
                      contentType:false,  
                      processData:false,
+                     success:function(data)  
+                     {  
+                          alert(data);  
+                          $('#complaint_form')[0].reset();  
+                          $('#userModal').modal('hide');  
+                         // dataTable.ajax.reload();  
+                     }
           });
         }
         else
@@ -137,6 +161,10 @@
           return false;
         }
       });
+
+
+
+      
 
 
     });
